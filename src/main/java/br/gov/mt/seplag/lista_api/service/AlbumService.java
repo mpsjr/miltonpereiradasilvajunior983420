@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.HashSet;
 import java.util.List;
@@ -24,11 +25,16 @@ public class AlbumService {
     private final AlbumRepository albumRepository;
     private final ArtistaRepository artistaRepository;
     private final MinioService minioService;
-
-    public AlbumService(AlbumRepository albumRepository, ArtistaRepository artistaRepository, MinioService minioService) {
+    private final SimpMessagingTemplate messagingTemplate;
+    
+    public AlbumService(AlbumRepository albumRepository, 
+                        ArtistaRepository artistaRepository, 
+                        MinioService minioService,
+                        SimpMessagingTemplate messagingTemplate) {
         this.albumRepository = albumRepository;
         this.artistaRepository = artistaRepository;
         this.minioService = minioService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Transactional(readOnly = true)
@@ -55,7 +61,16 @@ public class AlbumService {
         Album album = new Album();
         atualizarDadosAlbum(album, dto);
         album = albumRepository.save(album);
-        return toResponseDTO(album);
+        
+        AlbumResponseDTO responseDTO = toResponseDTO(album);
+        // Notificação WebSocket: Envia o DTO criado
+        try {
+            messagingTemplate.convertAndSend("/topic/novos-albuns", responseDTO);
+        } catch (Exception e) {
+            // Não travar o cadastro se o socket falhar
+            System.err.println("Erro ao enviar notificação WebSocket: " + e.getMessage());
+        }
+        return responseDTO;
     }
 
     @Transactional
