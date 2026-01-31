@@ -1,15 +1,12 @@
 package br.gov.mt.seplag.lista_api.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * Representa uma Regional.
- * Estrutura definida no requisito para sincronização.
+ * Estrutura definida no requisito para sincronização com API externa.
  */
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -19,7 +16,11 @@ public class Regional {
 
     @EqualsAndHashCode.Include
     @Id
-    private Integer id; // ID manual para sincronizar com API externa
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "id_regional", nullable = false)
+    private Integer idRegional; // ID vindo da API Externa
 
     @Column(length = 200)
     private String nome;

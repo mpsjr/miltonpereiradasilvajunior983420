@@ -17,12 +17,11 @@ API REST desenvolvida para gerenciamento de Artistas e Álbuns musicais.
 * **Containerização:** Docker & Docker Compose
 * **Documentação:** OpenAPI / Swagger
 
-## Decisões Arquiteturais (Fase 1 & 2)
+## Decisões Arquiteturais
 1. **Estrutura de Banco de Dados:**
    - Adotado relacionamento N:N entre `Artista` e `Album` conforme solicitado.
    - Utilização do **Flyway** para versionamento de schema e carga inicial de dados.
    - IDs autoincrementais (`BIGSERIAL`) para entidades de negócio.
-   - Para o requisito de **Regionais** (Sincronização), optou-se por não usar autoincremento para permitir controle manual dos IDs externos.
 
 2. **Infraestrutura:**
    - O projeto é entregue totalmente containerizado via `docker-compose`, orquestrando a API, o Banco de Dados e o MinIO.
