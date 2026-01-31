@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -48,5 +50,13 @@ public class AlbumController {
     @Operation(summary = "Atualizar álbum existente")
     public ResponseEntity<AlbumResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid AlbumRequestDTO dto) {
         return ResponseEntity.ok(service.atualizar(id, dto));
+    }
+    
+    @PostMapping(value = "/{id}/capa", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload de capa do álbum", description = "Envia uma imagem para o MinIO e vincula ao álbum")
+    public ResponseEntity<AlbumResponseDTO> uploadCapa(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(service.uploadCapa(id, file));
     }
 }
