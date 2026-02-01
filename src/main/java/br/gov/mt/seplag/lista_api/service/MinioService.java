@@ -52,7 +52,7 @@ public class MinioService {
                             .method(Method.GET)
                             .bucket(bucketName)
                             .object(fileName)
-                            .expiry(30, TimeUnit.MINUTES) // Expiração de 30 minutos
+                            .expiry(30, TimeUnit.MINUTES) // Link pré-assinado com expiração de 30 minutos
                             .build()
             );
         } catch (Exception e) {
