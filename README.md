@@ -51,38 +51,28 @@
       Isso permite que, se uma regional mudar de nome na API externa, o sistema inative o registro antigo e crie um novo, 
       mantendo a integridade referencial histórica.
 
-2. **Modelagem de Dados (Diagrama ER):**
-```mermaid
-erDiagram
-    ARTISTA ||--|{ ALBUM_ARTISTA : possui
-    ALBUM ||--|{ ALBUM_ARTISTA : contem
-    ALBUM {
-        bigint id PK
-        string titulo
-        int ano_lancamento
-    }
-    ARTISTA {
-        bigint id PK
-        string nome
-    }
-    ARTISTA_ALBUM {
-        bigint artista_id FK
-        bigint album_id FK
-    }
-    REGIONAL {
-        bigint id PK
-        int id_regional_externo
-        string nome
-        boolean ativo
-    }```
-
-3. **Infraestrutura:**
+2. **Infraestrutura:**
    - O projeto utiliza `docker-compose` para orquestrar dependências vitais (Banco e Storage).
    - Healthchecks configurados para garantir que o banco esteja pronto antes da conexão.
    
-4. **Segurança e Performance**
+3. **Segurança e Performance**
    - Implementado filtro de **Rate Limit** (10 requisições/min) via Bucket4j, para garantir segurança e disponibilidade do serviço.
    - Criada Whitelist de prefixos que não consomem tokens do bucket (permitir acesso irrestrito à documentação (Swagger) e arquivos estáticos).
+
+## 📸 Evidências
+
+### 3. Modelagem de Dados
+Estrutura relacional do banco de dados (PostgreSQL).
+![Diagrama ](assets/diagrama-db.png)
+
+### 2. Armazenamento de capas (MinIO)
+As capas dos álbuns são armazenadas em buckets no MinIO.
+![Dashboard MinIO](assets/minio-dashboard.png)
+
+### 1. Monitoramento em Tempo Real (WebSocket)
+O sistema notifica todos os clientes conectados quando um novo álbum é cadastrado.
+![Monitoramento WebSocket - Aguardando](assets/monitor-websocket_aguardando.png)
+![Monitoramento WebSocket - Mensagem](assets/monitor-websocket_mensagem.png)
 
 ---
 

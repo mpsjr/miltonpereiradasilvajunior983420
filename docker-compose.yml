@@ -11,20 +11,15 @@ services:
       POSTGRES_DB: lista_db
       POSTGRES_USER: seplag_user
       POSTGRES_PASSWORD: seplag_password
-                                                                                        
-                                                                  
-                   
-                 
-                
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck: # Garantir que a API só inicie depois que o BD subir, evitando falhas.
-      test: ["CMD-SHELL", "pg_isready -U seplag_user -d lista_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U seplag_user -d lista_db"] # Comando para realizar o teste
+      interval: 10s # Intervalo entre as checagens
+      timeout: 5s   # Tempo máximo de espera da resposta
+      retries: 5    # Falhas consecutivas para marcar como 'unhealthy' (não saudável)
 
   # -----------------------------------------------------------------
   # Storage MinIO
@@ -41,11 +36,11 @@ services:
       - "9001:9001" # Console Web
     volumes:
       - minio_data:/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+    healthcheck: # Garantir que a API só inicie depois que o MinIO subir, evitando falhas.
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"] # Comando para realizar o teste
+      interval: 30s # Intervalo entre as checagens
+      timeout: 20s  # Tempo máximo de espera da resposta
+      retries: 3    # Falhas consecutivas para marcar como 'unhealthy' (não saudável)
 
   # -----------------------------------------------------------------
   # API Spring Boot
@@ -57,11 +52,10 @@ services:
       - "8080:8080"      # Expõe a porta 8080 para o host
     depends_on:
       postgres:
-        condition: service_healthy # Só inicia se o Banco estiver OK
+        condition: service_healthy # Readiness: Espera o Banco estar OK 
       minio:
-        condition: service_healthy # Só inicia se o MinIO estiver OK
+        condition: service_healthy # Readiness: Espera o MinIO estar OK
     environment:
-      # Configurações do application.yaml para rodar na rede Docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lista_db
       SPRING_DATASOURCE_USERNAME: seplag_user
       SPRING_DATASOURCE_PASSWORD: seplag_password
@@ -69,7 +63,13 @@ services:
       APP_MINIO_ACCESS-KEY: minio_admin
       APP_MINIO_SECRET-KEY: minio_password
       APP_MINIO_BUCKET-NAME: capas-albuns
-
+    healthcheck: # Health Check e Liveness da API
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s     # Intervalo entre as checagens
+      timeout: 10s      # Tempo máximo de espera da resposta
+      retries: 3        # Falhas consecutivas para marcar como 'unhealthy' (não saudável)
+      start_period: 40s # Tempo para o Spring Boot carregar antes da 1ª checagem
+      
 volumes:
   postgres_data:
   minio_data:
