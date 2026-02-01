@@ -1,6 +1,9 @@
+version: '3.8'
 
 services:
+  # -----------------------------------------------------------------
   # Banco de Dados PostgreSQL
+  # -----------------------------------------------------------------
   postgres:
     image: postgres:15-alpine
     container_name: lista-api-db
@@ -8,12 +11,24 @@ services:
       POSTGRES_DB: lista_db
       POSTGRES_USER: seplag_user
       POSTGRES_PASSWORD: seplag_password
+                                                                                        
+                                                                  
+                   
+                 
+                
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck: # Garantir que a API só inicie depois que o BD subir, evitando falhas.
+      test: ["CMD-SHELL", "pg_isready -U seplag_user -d lista_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # -----------------------------------------------------------------
   # Storage MinIO
+  # -----------------------------------------------------------------
   minio:
     image: minio/minio:latest
     container_name: lista-api-minio
@@ -26,6 +41,34 @@ services:
       - "9001:9001" # Console Web
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # -----------------------------------------------------------------
+  # API Spring Boot
+  # -----------------------------------------------------------------
+  api:
+    build: .             # Lê o Dockerfile na raiz
+    container_name: lista-api-app
+    ports:
+      - "8080:8080"      # Expõe a porta 8080 para o host
+    depends_on:
+      postgres:
+        condition: service_healthy # Só inicia se o Banco estiver OK
+      minio:
+        condition: service_healthy # Só inicia se o MinIO estiver OK
+    environment:
+      # Configurações do application.yaml para rodar na rede Docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lista_db
+      SPRING_DATASOURCE_USERNAME: seplag_user
+      SPRING_DATASOURCE_PASSWORD: seplag_password
+      APP_MINIO_URL: http://minio:9000
+      APP_MINIO_ACCESS-KEY: minio_admin
+      APP_MINIO_SECRET-KEY: minio_password
+      APP_MINIO_BUCKET-NAME: capas-albuns
 
 volumes:
   postgres_data:
