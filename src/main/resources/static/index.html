@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitor de novos Álbuns (WebSocket)</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background-color: #f4f4f9; }
+        h2 { color: #333; }
+        
+        #status-container { margin-bottom: 20px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        #status { font-weight: bold; color: orange; }
+        
+        #log { 
+            height: 400px; 
+            overflow-y: auto; 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            padding: 0;
+        }
+        
+        .msg { 
+            padding: 15px; 
+            border-bottom: 1px solid #eee; 
+            display: flex; 
+            align-items: center; 
+            transition: background 0.3s;
+        }
+        .msg:hover { background-color: #f9f9f9; }
+        .msg-icon { font-size: 24px; margin-right: 15px; }
+        .msg-content { flex-grow: 1; }
+        .msg-time { font-size: 0.8em; color: #999; }
+        .msg-title { font-weight: bold; color: #2c3e50; font-size: 1.1em; }
+        .msg-id { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; color: #555; }
+
+        /* Estilo do POPUP (Toast) */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .toast {
+            background-color: #28a745; /* Verde Sucesso */
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.5s, fadeOut 0.5s 4s forwards;
+            min-width: 300px;
+        }
+        
+        .toast-icon { font-size: 24px; margin-right: 12px; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+
+    <div id="toast-container"></div> <h2>📡 Central de Monitoramento (WebSocket) - Novos Álbuns</h2>
+    
+    <div id="status-container">
+        Status da Conexão: <span id="status">Conectando...</span>
+    </div>
+
+    <div id="log">
+        <div style="padding: 20px; text-align: center; color: #ccc;">Aguardando novos registros...</div>
+    </div>
+
+    <script>
+        var stompClient = null;
+
+        function conectar() {
+            var socket = new SockJS('/ws-albuns');
+            stompClient = Stomp.over(socket);
+            stompClient.debug = null; // Desativa logs no console
+            
+            stompClient.connect({}, function (frame) {
+                document.getElementById('status').innerText = '🟢 Conectado e Aguardando';
+                document.getElementById('status').style.color = 'green';
+                
+                // Limpa mensagem de "aguardando" se houver
+                document.getElementById('log').innerHTML = '';
+
+                stompClient.subscribe('/topic/novos-albuns', function (mensagem) {
+                    var album = JSON.parse(mensagem.body);
+                    adicionarNaLista(album);
+                    mostrarToast(album);
+                });
+            });
+        }
+
+        // Cria um Popup Visual (Toast)
+        function mostrarToast(album) {
+            var container = document.getElementById('toast-container');
+            
+            var toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon">✅</div>
+                <div>
+                    <div style="font-weight: bold;">Novo Álbum Cadastrado!</div>
+                    <div style="font-size: 0.9em;">${album.titulo} (${album.anoLancamento})</div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+
+            // Remove o elemento do DOM após 4.5 segundos
+            setTimeout(() => {
+                toast.remove();
+            }, 4500);
+        }
+
+        function adicionarNaLista(album) {
+            var log = document.getElementById('log');
+            var div = document.createElement('div');
+            div.className = 'msg';
+            
+            var hora = new Date().toLocaleTimeString();
+            
+            div.innerHTML = `
+                <div class="msg-icon">💿</div>
+                <div class="msg-content">
+                    <div class="msg-title">${album.titulo}</div>
+                    <div class="msg-time">Cadastrado às ${hora} • <span class="msg-id">ID: ${album.id}</span></div>
+                </div>
+            `;
+            
+            // Adiciona no topo da lista com animação suave
+            div.style.opacity = '0';
+            log.prepend(div);
+            
+            // Pequeno delay para animação de entrada
+            setTimeout(() => div.style.opacity = '1', 50);
+        }
+
+        conectar();
+    </script>
+
+</body>
+</html>

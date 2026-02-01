@@ -25,23 +25,22 @@
 ## 📋 Funcionalidades Implementadas
 
 ### Core
-- [x] **Ambiente Containerizado**: Setup completo orquestrado via Docker Compose (API + MinIO + BD).
 - [x] **CRUD de Artistas**: Ordenação dinâmica e busca por nome.
 - [x] **CRUD de Álbuns**: Paginação, relacionamento N:N com Artistas.
 - [x] **Upload de Imagens**: Suporte a múltiplas capas por álbum, armazenadas no MinIO.
 - [x] **Links Seguros**: Geração de URLs pré-assinadas (Presigned URLs) com expiração de 30 min.
+- [x] **Ambiente Containerizado**: Setup completo orquestrado via Docker Compose (API + MinIO + BD).
 
 ### Sênior
 - [x] **Sincronização de Regionais**: Integração com API externa, implementando lógica de versionamento (Inativar antigo vs Criar novo) para manter histórico.
-- [x] **WebSockets**: Notificação ao cadastrar novos álbuns (`/v1/albuns`) .
-- [x] **Rate Limiting**: Garantir que a infraestrutura não seja sobrecarregada por acessos excessivos (10 requisições/minuto).
-
+- [x] **WebSockets**: Notificação em tempo real ao cadastrar novos álbuns (`/v1/albuns`), com painel de monitoramento visual.
+- [x] **Rate Limiting**: Limitan requisições por IP, garantindo segurança contra DDoS/Brute-force e que a infraestrutura não seja sobrecarregada por acessos excessivos (10 requisições/minuto).
 
 ## Decisões Arquiteturais
 1. **Estrutura de Banco de Dados:**
    - Adotado relacionamento N:N entre `Artista` e `Album` conforme solicitado.
    - Utilização do **Flyway** para versionamento de schema e carga inicial de dados.
-   - Implementada carga inicial de dados de exemplos.
+   - Implementada carga inicial de dados de exemplos (Artistas e Álbuns).
    - IDs autoincrementais (`BIGSERIAL`) para entidades de negócio.
    - Versionamento de Regionais: A tabela regional utiliza um ID interno (id) diferente do ID externo (id_regional). 
       Isso permite que, se uma regional mudar de nome na API externa, o sistema inative o registro antigo e crie um novo, 
@@ -73,17 +72,24 @@
       - A aplicação iniciará na porta 8080. O Flyway criará as tabelas e fará a carga inicial de dados automaticamente.
    
 ## 📚 Documentação da API (Swagger)
-Acesse a interface interativa para testar os endpoints: 👉 http://localhost:8080/swagger-ui.html
+   Acesse a interface interativa para testar os endpoints: 👉 http://localhost:8080/swagger-ui.html
 
    Principais Endpoints de Teste:
       Listar Álbuns (Paginado) - Permite consultar álbuns por artista (cantor/banda).
-      GET /v1/albuns
+         GET /v1/albuns
+      
+      Monitoramento em Tempo Real (WebSocket) - Permite testar a notificação ao cadastrar novos álbuns .
+         Abra o navegador em: http://localhost:8080 (Painel de Monitoramento). Mantenha esta aba aberta.
+         No Swagger, cadastre um novo álbum (POST /v1/albuns).
+         Veja o alerta aparecer instantaneamente no Painel de Monitoramento.
 
-      Upload de Capa - Permite enviar imagens para o MinIO e vincular ao álbum.
-      POST /v1/albuns/{id}/capa (Use ID do álbum)
+      Upload de Capas - Permite enviar imagens para o MinIO e vincular ao álbum.
+         POST /v1/albuns/{id}/capa (Use o ID do álbum)
 
-      Disparar Sincronização de Regionais - Busca dados da API externa e atualiza a base local.
-      POST /v1/regionais/sincronizacao
+      Disparar Sincronização de Regionais (Integração) - Busca dados da API externa e atualiza a base local.
+         Execute GET /v1/regionais (Lista vazia ou desatualizada).
+         Execute POST /v1/regionais/sincronizacao (Busca dados da API externa).
+         Execute GET /v1/regionais novamente para ver os dados populados.
 
       Testar Rate Limit - Controle de requisições que um usuário pode fazer.
-      Faça +10 requisições em 1 minuto para receber HTTP 429.
+         Faça +10 requisições em 1 minuto para receber HTTP 429.
