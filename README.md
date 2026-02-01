@@ -10,8 +10,8 @@
 * **Email        :** mpsjunior@gmail.com
 
 ## Sobre o Projeto Profissional
- API REST desenvolvida para gerenciamento de Artistas, Álbuns musicais e integração de regionais. O projeto foi estruturado para atender requisitos de níveis Sênior, focando em escalabilidade, documentação e boas práticas.
-
+   API REST desenvolvida para gerenciamento de Artistas, Álbuns musicais e integração de regionais. 
+   O projeto foi estruturado para atender requisitos de níveis Sênior, focando em escalabilidade, documentação e boas práticas.
 
 ## 🚀 Tecnologias Utilizadas
 - **Java 17** (LTS)
@@ -25,32 +25,62 @@
 
 ## 📋 Funcionalidades Implementadas
 
-### Core
+### Requisitos Gerais
+- [ ] **Segurança**: bloquear acesso ao endpoint a partir de domínios fora do domínio do serviço.
+- [ ] **Autenticação JWT**: Com expiração a cada 5 minutos e possibilidade de renovação.
 - [x] **CRUD de Artistas**: Ordenação dinâmica e busca por nome.
 - [x] **CRUD de Álbuns**: Paginação, relacionamento N:N com Artistas.
 - [x] **Upload de Imagens**: Suporte a múltiplas capas por álbum, armazenadas no MinIO.
 - [x] **Links Seguros**: Geração de URLs pré-assinadas (Presigned URLs) com expiração de 30 min.
 - [x] **Ambiente Containerizado**: Setup via Docker Compose (API + MinIO + BD).
 
-### Sênior
-- [x] **Sincronização de Regionais**: Integração com API externa, implementando lógica de versionamento (Inativar antigo vs Criar novo) para manter histórico.
+### Requisitos Sênior
+- [x] **Health Checks e Liveness/Readiness**: Implementado no arquivo docker-compose.yaml para monitorar a integridade da API, BD e MinIO.
+- [ ] **Testes unitários**:.
 - [x] **WebSockets**: Notificação em tempo real ao cadastrar novos álbuns (`/v1/albuns`), com painel de monitoramento visual (`index.html`).
 - [x] **Rate Limiting**: Limita requisições por IP (10 requisições/minuto), garantindo que a infraestrutura não seja sobrecarregada por acessos excessivos e segurança contra ataques de força bruta.
+- [x] **Endpoint de Regionais**: Integração com API externa, implementando lógica de versionamento (Inativar antigo vs Criar novo) para manter histórico.
 
 ## 🏗️ Decisões Arquiteturais
 1. **Estrutura de Banco de Dados:**
-   - Adotado relacionamento N:N entre `Artista` e `Album`.
-   - Utilização do **Flyway** para versionamento de schema e carga inicial de dados de exemplo (artistas e álbuns.
    - IDs autoincrementais (`BIGSERIAL`).
+   - Adotado relacionamento N:N entre `Artista` e `Album`. Criada tabela `artista_album` para fazer o relacionamento.
+   - Criada tabela `imagem_album` para salvar o vinculo entre um álbum e suas várias capas salva no MinIO.
+   - Utilização do **Flyway** para versionamento de schema e carga inicial de dados de exemplo (artistas e álbuns).
    - **Versionamento de Regionais**: A tabela `regional` utiliza um ID interno (id) diferente do ID externo (id_regional). 
       Isso permite que, se uma regional mudar de nome na API externa, o sistema inative o registro antigo e crie um novo, 
       mantendo a integridade referencial histórica.
 
-2. **Infraestrutura:**
+2. **Modelagem de Dados (Diagrama ER):**
+```mermaid
+erDiagram
+    ARTISTA ||--|{ ALBUM_ARTISTA : possui
+    ALBUM ||--|{ ALBUM_ARTISTA : contem
+    ALBUM {
+        bigint id PK
+        string titulo
+        int ano_lancamento
+    }
+    ARTISTA {
+        bigint id PK
+        string nome
+    }
+    ARTISTA_ALBUM {
+        bigint artista_id FK
+        bigint album_id FK
+    }
+    REGIONAL {
+        bigint id PK
+        int id_regional_externo
+        string nome
+        boolean ativo
+    }```
+
+3. **Infraestrutura:**
    - O projeto utiliza `docker-compose` para orquestrar dependências vitais (Banco e Storage).
    - Healthchecks configurados para garantir que o banco esteja pronto antes da conexão.
    
-3. **Segurança e Performance**
+4. **Segurança e Performance**
    - Implementado filtro de **Rate Limit** (10 requisições/min) via Bucket4j, para garantir segurança e disponibilidade do serviço.
    - Criada Whitelist de prefixos que não consomem tokens do bucket (permitir acesso irrestrito à documentação (Swagger) e arquivos estáticos).
 
@@ -129,6 +159,6 @@
             
       #- Rate Limit (ontrole de requisições que um usuário pode fazer):
          **Testar Rate Limit**
-         Em qualquer endpoint (ex: GET /v1/artistas).
-         Clique em "Execute" rapidamente (mais de 10 vezes em 1 minuto).
-         Você receberá um erro HTTP 429 com a seguinte mensagem: `Limite de requisições excedido (10 req/min). Aguarde um momento.´.
+            Em qualquer endpoint (ex: GET /v1/artistas).
+            Clique em "Execute" rapidamente (mais de 10 vezes em 1 minuto).
+            Você receberá um erro HTTP 429 com a seguinte mensagem: `Limite de requisições excedido (10 req/min). Aguarde um momento.´.
