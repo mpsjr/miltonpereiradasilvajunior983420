@@ -36,7 +36,7 @@
 
 ### Requisitos Sênior
 - [x] **Health Checks e Liveness/Readiness**: Implementado no arquivo docker-compose.yaml para monitorar a integridade da API, BD e MinIO.
-- [ ] **Testes unitários**:.
+- [x] **Testes unitários**: Implementa uma suíte de testes unitários utilizando *JUnit 5* e *Mockito*.
 - [x] **WebSockets**: Notificação em tempo real ao cadastrar novos álbuns (`/v1/albuns`), com painel de monitoramento visual (`http://localhost:8080/index.html`).
 - [x] **Rate Limiting**: Limita requisições por IP (10 requisições/minuto), garantindo que a infraestrutura não seja sobrecarregada por acessos excessivos e segurança conta de ataques de força bruta.
 - [x] **Endpoint de Regionais**: Integração com API externa, implementando lógica de versionamento (Inativar antigo vs Criar novo) para manter histórico.
@@ -77,11 +77,12 @@ O sistema notifica todos os clientes conectados quando um novo álbum é cadastr
 ---
 
 ## 🛠️ Como Executar o Projeto
-> **Nota:** Siga os passos abaixo para garantir que não haja conflito de portas.
+
 ### Pré-requisitos
 - **Docker e Docker Compose** instalados.
 - **JDK 17 e Maven** instalados.
 - **Portas Livres:** Certifique-se de que não há nada rodando nas portas **8080**, **5432** e **9000**.
+> **Nota:** Em caso de dúvida, execute o seguinte comando `taskkill /F /IM java.exe`. Ele irá matar todos os processo java rodando.
 
 
 ### Passo 1: Subir Infraestrutura (Banco e MinIO)
@@ -166,6 +167,44 @@ Acesse a interface do Swagger para testar todos os endpoints de forma interativa
 ### 🚦 Rate Limit - Controle de requisições que um usuário pode fazer.
 
 - **Testar Rate Limit**
-  1. Em qualquer endpoint (ex: `GET /v1/artistas`).
-  2. Clique em "Execute" rapidamente (mais de 10 vezes em 1 minuto).
-  3. Você receberá um erro HTTP 429 com a seguinte mensagem: *Limite de requisições excedido (10 req/min). Aguarde um momento.*
+   1 . Em qualquer endpoint (ex: `GET /v1/artistas`).
+   2 . Clique em "Execute" rapidamente (mais de 10 vezes em 1 minuto).
+   3 . Você receberá um erro HTTP 429 com a seguinte mensagem: *Limite de requisições excedido (10 req/min). Aguarde um momento.*
+
+---
+
+
+## 🛡️ Testes Automatizados
+O projeto implementa uma suíte de testes unitários utilizando **JUnit 5** e **Mockito**.  
+A execução valida a integridade das regras de negócio críticas antes de qualquer deploy.
+
+### 🧠 Estratégia de Testes
+Os testes concentram-se nos 3 serviços principais (maior valor e complexidade):  
+
+- **`ArtistaServiceTest`:**
+    * **Por que:** Validação essencial do CRUD.
+    * **O que valida:** Garante que o fluxo básico de cadastro e manipulação de entidades e DTOs está operando corretamente.
+
+- **`AlbumServiceTest`:**
+    * **Por que:** Validação essencial do CRUD e envolve múltiplos componentes (Banco de Dados + WebSocket).
+    * **O que valida:** Garante que, ao salvar um álbum, o sistema não apenas persista no banco, mas também dispare o evento de notificação em tempo real.
+
+- **`RegionalServiceTest`:**
+    * **Por que:** Lógica mais complexa do sistema (Sincronização com API externa).
+    * **O que valida:** Garante que o algoritmo de *versionamento* funcione: detectar mudanças de nome, inativar o registro antigo (preservando histórico) e criar o novo registro automaticamente.
+
+> **Decisão Arquitetural:** DTOs simples, configurações de framework e outros métodos foram excluídos da cobertura para priorizar os serviços principais da API.  
+
+### ⚙️ Como Executar os Testes Automatizado
+- No terminal, na raiz do projeto, execute um dos comando abaixo:  
+   `mvn test` ou `mvn clean test`  
+   _ O Maven irá compilar o projeto e executar todos os testes automatizados, localizados em: *src/test/java/br/gov/mt/seplag/lista_api/service*  
+
+
+ 📄 **Resultado Esperado:**
+   Após a execução, o sistema exibirá logs de sucesso personalizados para facilitar o acompanhamento:
+
+   >  Teste de Cadastro de Álbum: SUCESSO. Álbum ID 50 salvo e notificação WebSocket enviada.  
+   >  Teste de Cadastro de Artista: SUCESSO.  
+   >  Teste de Versionamento de Regionais: SUCESSO. Sincronização concluída. Inseridos: 0, Atualizados: 1, Inativados: 0  
+   >  BUILD SUCCESS  
