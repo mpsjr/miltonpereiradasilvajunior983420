@@ -67,12 +67,13 @@ Estrutura relacional do banco de dados (PostgreSQL).
 
 ### 2. Armazenamento de capas (MinIO)
 As capas dos álbuns são armazenadas em buckets no MinIO.  
-![Dashboard MinIO](assets/minio-dashboard.png)
+![Dashboard MinIO](assets/minio-dashboard_I.png)
+![Dashboard MinIO](assets/minio-dashboard_II.png)
 
 ### 3. Monitoramento em Tempo Real (WebSocket)
-![Monitoramento WebSocket - Aguardando](assets/monitor-websocket_aguardando.png).  
+![Monitoramento WebSocket - Aguardando](assets/monitor-websocket_aguardando.png)  
 O sistema notifica todos os clientes conectados quando um novo álbum é cadastrado.  
-![Monitoramento WebSocket - Mensagem](assets/monitor-websocket_mensagem.png).
+![Monitoramento WebSocket - Mensagem](assets/monitor-websocket_mensagem.png)
 
 ---
 
