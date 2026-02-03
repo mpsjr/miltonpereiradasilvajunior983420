@@ -27,7 +27,7 @@
 
 ### Requisitos Gerais
 - [ ] **Segurança**: bloquear acesso ao endpoint a partir de domínios fora do domínio do serviço.
-- [ ] **Autenticação JWT**: Com expiração a cada 5 minutos e possibilidade de renovação.
+- [x] **Autenticação JWT**: Com expiração a cada 5 minutos e possibilidade de renovação.
 - [x] **CRUD de Artistas**: Ordenação dinâmica e busca por nome.
 - [x] **CRUD de Álbuns**: Paginação, relacionamento N:N com Artistas.
 - [x] **Upload de Imagens**: Suporte a múltiplas capas por álbum, armazenadas no MinIO.
@@ -58,6 +58,7 @@
 3. **Segurança e Performance**
    - Implementado filtro de **Rate Limit** (10 requisições/min) via Bucket4j, para garantir segurança e disponibilidade do serviço.
    - Criada Whitelist de prefixos que não consomem tokens do bucket (para permitir acesso irrestrito à documentação e arquivos estáticos).
+   - Para evitar possiveis erros ou bloqueios durante os testes, toda a parte de autenticação e segurança foram deixados para serem construidos no final do projeto.
 
 ## 📸 Screenshots
 
