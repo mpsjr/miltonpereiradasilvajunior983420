@@ -135,7 +135,7 @@ Acesse a interface do Swagger para testar todos os endpoints de forma interativa
   `POST /v1/albuns`  
 
 - 📡 **Monitor WebSocket** - Permite testar o monitoramento em tempo real ao cadastrar um novo álbum.  
-   1 . Antes de cadastrar um novo álbum, abra o navegador em: [http://localhost:8080](http://localhost:8080) (Painel de Monitoramento).  
+1 . Antes de cadastrar um novo álbum, abra o navegador em: [http://localhost:8080/index.html](http://localhost:8080/index.html) (Painel de Monitoramento).  
    2 . Verifique se o status inicial é "Conectado".  
    3 . Mantenha essa aba visível ou em uma janela separada lado-a-lado.  
    4 . Efetue o cadastro de um novo álbum em `POST /v1/albuns`. 
