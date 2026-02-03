@@ -21,13 +21,15 @@
 - **Flyway** (Versionamento e Migração de Banco de Dados)
 - **Docker & Docker Compose** (Orquestração de Ambiente)
 - **Bucket4j** (Rate Limiting)
+- **Spring Security** (Autenticação e Autorização via Filtros)
+- **Auth0 Java-JWT** (Geração e Validação de Tokens)
 - **Swagger / OpenAPI** (Documentação)
 
 ## 📋 Funcionalidades Implementadas
 
 ### Requisitos Gerais
 - [ ] **Segurança**: bloquear acesso ao endpoint a partir de domínios fora do domínio do serviço.
-- [x] **Autenticação JWT**: Com expiração a cada 5 minutos e possibilidade de renovação.
+- [x] **Autenticação JWT**: Implementada com **Spring Security**. Token com expiração de 5 minutos e endpoint de renovação.
 - [x] **CRUD de Artistas**: Ordenação dinâmica e busca por nome.
 - [x] **CRUD de Álbuns**: Paginação, relacionamento N:N com Artistas.
 - [x] **Upload de Imagens**: Suporte a múltiplas capas por álbum, armazenadas no MinIO.
@@ -107,6 +109,32 @@ A API notifica todos os clientes conectados quando um novo álbum é cadastrado.
 Acesse a interface do Swagger para testar todos os endpoints de forma interativa:  
 👉 **[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)**
 
+## 🔐 Guia de Autenticação
+A API segue o padrão **Stateless** via Token JWT. Os endpoints são protegidos e exigem um token válido no cabeçalho `Authorization`.
+
+### 1. Credenciais de Acesso (Admin)
+O **Flyway** cria automaticamente um usuário administrador na inicialização do banco:
+* **Email:** `admin@seplag.mt.gov.br`
+* **Senha:** `123`
+
+### 2. Como se autenticar no Swagger
+Para facilitar os testes, o Swagger foi configurado com suporte a Security Schemes:
+
+   1. Acesse o endpoint `POST /auth/login`.
+   2. Clique em **Try it out** e insira as credenciais acima no JSON.
+   3. Execute e copie o `token` retornado na resposta (sem as aspas).
+   4. Suba ao topo da página do Swagger e clique no botão verde **🔓 Authorize**.
+   5. Cole o token no campo **Value** e clique em **Authorize**.
+   6. Pronto! Os cadeados ao lado dos endpoints ficarão fechados (🔒) e você terá acesso liberado por **5 minutos**.
+
+   > **Nota:** Se o token expirar, utilize o endpoint `POST /auth/refresh` (estando logado) para obter um novo, ou faça login novamente.
+
+### 🛡️ Autenticação
+- **Login** - Recebe email/senha e retorna o Token JWT.
+  `POST /auth/login`
+- **Refresh Token** - Renova a validade do token por mais 5 minutos.
+  `POST /auth/refresh`
+
 ### 🎤 Artistas - Gerenciamento de cantores e bandas.
 
 - **Busca artista por Id** - Permite consultar um artista informando o seu Id.  
@@ -136,7 +164,7 @@ Acesse a interface do Swagger para testar todos os endpoints de forma interativa
   `POST /v1/albuns`  
 
 - 📡 **Monitor WebSocket** - Permite testar o monitoramento em tempo real ao cadastrar um novo álbum.  
-1 . Antes de cadastrar um novo álbum, abra o navegador em: [http://localhost:8080/index.html](http://localhost:8080/index.html) (Painel de Monitoramento).  
+   1 . Antes de cadastrar um novo álbum, abra o navegador em: [http://localhost:8080/index.html](http://localhost:8080/index.html) (Painel de Monitoramento).  
    2 . Verifique se o status inicial é "Conectado".  
    3 . Mantenha essa aba visível ou em uma janela separada lado-a-lado.  
    4 . Efetue o cadastro de um novo álbum em `POST /v1/albuns`. 
