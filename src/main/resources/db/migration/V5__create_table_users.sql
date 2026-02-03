@@ -1,3 +1,5 @@
+/* Cria tabela de Usuários */
+
 CREATE TABLE usuarios (
     id BIGSERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -7,4 +9,4 @@ CREATE TABLE usuarios (
 
 -- Senha: '123' (hash BCrypt gerado para teste)
 INSERT INTO usuarios (email, senha, role) VALUES 
-('admin@seplag.mt.gov.br', '$2y$10$wN1Q/R.M6G.Jb.k1B9Xb5eG1o5.7Q9XJ8RzL2Z4m3Z1l2K4n5o6p7', 'ADMIN');
+('admin@seplag.mt.gov.br', '$2a$12$aytsJl0XJEsQrodJzBB4Du4rvlr5DeCt7cMMuMEdElsLUN2/BzDba', 'ADMIN');
