@@ -48,7 +48,7 @@
    - Criada tabela `imagem_album` para salvar o vinculo entre um álbum e suas várias capas salvas no MinIO.
    - Utilização do **Flyway Migrations** para versionamento de schema e carga inicial de dados de exemplo (artistas e álbuns).
    - **Versionamento de Regionais**: A tabela `regional` utiliza um ID interno (id) diferente do ID externo (id_regional). 
-      Isso permite que, se uma regional mudar de nome na API externa, o sistema inative o registro antigo e crie um novo, 
+      Isso permite que, se uma regional mudar de nome no Endpoint, a API inativa o registro antigo e cria um novo, 
       mantendo a integridade referencial histórica.
 
 2. **Infraestrutura:**
@@ -72,7 +72,7 @@ As capas dos álbuns são armazenadas em buckets no MinIO.
 
 ### 3. Monitoramento em Tempo Real (WebSocket)
 ![Monitoramento WebSocket - Aguardando](assets/monitor-websocket_aguardando.png)  
-O sistema notifica todos os clientes conectados quando um novo álbum é cadastrado.  
+A API notifica todos os clientes conectados quando um novo álbum é cadastrado.  
 ![Monitoramento WebSocket - Mensagem](assets/monitor-websocket_mensagem.png)
 
 ---
@@ -83,23 +83,23 @@ O sistema notifica todos os clientes conectados quando um novo álbum é cadastr
 - **Docker e Docker Compose** instalados.
 - **JDK 17 e Maven** instalados.
 - **Portas Livres:** Certifique-se de que não há nada rodando nas portas **8080**, **5432** e **9000**.
-> **Nota:** Em caso de dúvida, execute o seguinte comando `taskkill /F /IM java.exe`. Ele irá matar todos os processo java rodando.
+> **Nota:** Em caso de dúvida, execute o seguinte comando `taskkill /F /IM java.exe`. Ele irá matar todos os processos java rodando.
 
 
 ### Passo 1: Subir Infraestrutura (Banco e MinIO)
 - No terminal, na raiz do projeto, execute:  
    `docker-compose up -d postgres minio`  
-   _ Isso iniciará o PostgreSQL (Porta 5432) e o MinIO (Porta 9000/9001), sem ocupar a porta 8080 (usada pela API).  
+   > Isso iniciará o PostgreSQL (Porta 5432) e o MinIO (Porta 9000/9001), sem ocupar a porta 8080 (usada pela API).  
    
 - Ainda no terminal, execute:  
    `docker ps`  
-   _ Esse comando lista os containers que estão rodando.  
+   > Esse comando lista os containers que estão rodando.  
  
-### Passo 2: Executar Aplicação
+### Passo 2: Executar API
 - No terminal, na raiz do projeto, execute:  
    `mvn spring-boot:run`  
-   _ Com a infraestrutura rodando, executamos a API via Maven.  
-   _ A aplicação iniciará na porta 8080. O Flyway criará as tabelas e fará a carga inicial de dados automaticamente.  
+   > Com a infraestrutura rodando, executamos a API via Maven.  
+   > A API iniciará na porta 8080. O Flyway criará as tabelas e fará a carga inicial de dados automaticamente.  
 
 
 > ### **Comandos que podem auxiliar:**  
@@ -107,9 +107,9 @@ O sistema notifica todos os clientes conectados quando um novo álbum é cadastr
 > `docker-compose down -v`         Remove containers e os volumes (Apaga BD, histórico do Flyway e dados persistidos).  
 > `docker-compose up -d`           Sobe os containers definidos no docker-compose.yml (API, PostgreSQL, MinIO, etc.).  
 > `docker ps`                      Lista containers em execução (Verificar se containers estão rodando).  
-> `.\mvnw spring-boot:run`         Usa o Maven Wrapper do projeto. Compila e executa a aplicação Spring Boot.  
-> `.\mvnw clean spring-boot:run`   Limpa clases antigas, compila e executa a aplicação Spring Boot.  
-> `taskkill /F /IM java.exe`       Mata todos os processo java rodando (em caso de erro de porta ao subir aplicação).  
+> `.\mvnw spring-boot:run`         Usa o Maven Wrapper do projeto. Compila e executa a API Spring Boot.  
+> `.\mvnw clean spring-boot:run`   Limpa classes antigas, compila e executa a API Spring Boot.  
+> `taskkill /F /IM java.exe`       Mata todos os processos java rodando (em caso de erro de porta ao subir a API).  
 
 ---
 
@@ -163,7 +163,7 @@ Acesse a interface do Swagger para testar todos os endpoints de forma interativa
 
 - **Disparar Sincronização** - Acessa a API externa e busca dados para atualizar a base de dados local.  
   `POST /v1/regionais/sincronizacao`  
-  > **Resultado:** Ao finalizar a sincronização, o sistema informa o resultado com o número de regionais inseridas, atualizadas e inativadas.
+> **Resultado:** Ao finalizar a sincronização, a API informa o resultado com o número de regionais inseridas, atualizadas e inativadas.
          
 ### 🚦 Rate Limit - Controle de requisições que um usuário pode fazer.
 
@@ -188,22 +188,22 @@ Os testes concentram-se nos 3 serviços principais (maior valor e complexidade):
 
 - **`AlbumServiceTest`:**
     * **Por que:** Validação essencial do CRUD e envolve múltiplos componentes (Banco de Dados + WebSocket).
-    * **O que valida:** Garante que, ao salvar um álbum, o sistema não apenas persista no banco, mas também dispare o evento de notificação em tempo real.
+* **O que valida:** Garante que, ao salvar um álbum, a API não apenas persista no banco, mas também dispare o evento de notificação em tempo real.
 
 - **`RegionalServiceTest`:**
-    * **Por que:** Lógica mais complexa do sistema (Sincronização com API externa).
+    * **Por que:** Lógica mais complexa da API (Sincronização com Endpoint externo).
     * **O que valida:** Garante que o algoritmo de *versionamento* funcione: detectar mudanças de nome, inativar o registro antigo (preservando histórico) e criar o novo registro automaticamente.
 
 > **Decisão Arquitetural:** DTOs simples, configurações de framework e outros métodos foram excluídos da cobertura para priorizar os serviços principais da API.  
 
-### ⚙️ Como Executar os Testes Automatizado
+### ⚙️ Como Executar os Testes Automatizados
 - No terminal, na raiz do projeto, execute um dos comando abaixo:  
    `mvn test` ou `mvn clean test`  
-   _ O Maven irá compilar o projeto e executar todos os testes automatizados, localizados em: *src/test/java/br/gov/mt/seplag/lista_api/service*  
+   > O Maven irá compilar o projeto e executar todos os testes automatizados, localizados em: *src/test/java/br/gov/mt/seplag/lista_api/service*  
 
 
  📄 **Resultado Esperado:**
-   Após a execução, o sistema exibirá logs de sucesso personalizados para facilitar o acompanhamento:
+   Após a execução, serão exibidos logs personalizados para facilitar o acompanhamento:
 
    >  Teste de Cadastro de Álbum: SUCESSO. Álbum ID 50 salvo e notificação WebSocket enviada.  
    >  Teste de Cadastro de Artista: SUCESSO.  

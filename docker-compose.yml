@@ -7,19 +7,23 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: lista-api-db
+    # Variáveis de ambiente para criar o banco e usuário automaticamente na 1ª execução
     environment:
       POSTGRES_DB: lista_db
       POSTGRES_USER: seplag_user
       POSTGRES_PASSWORD: seplag_password
+    # Mapeamento de portas: Porta do Host (PC) : Porta do Container
     ports:
       - "5432:5432"
+    # Persistência: Salva os dados num volume do Docker que não se perde ao reiniciar
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck: # Garantir que a API só inicie depois que o BD subir, evitando falhas.
-      test: ["CMD-SHELL", "pg_isready -U seplag_user -d lista_db"] # Comando para realizar o teste
-      interval: 10s # Intervalo entre as checagens
-      timeout: 5s   # Tempo máximo de espera da resposta
-      retries: 5    # Falhas consecutivas para marcar como 'unhealthy' (não saudável)
+    # Healthcheck: verifica a saúde do container
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seplag_user -d lista_db"] # Comando do Postgres para testar conexão
+      interval: 10s # Roda o teste a cada 10 segundos
+      timeout: 5s   # Se demorar mais que 5s, conta como falha
+      retries: 5    # Se falhar 5 vezes seguidas, marca como 'unhealthy'
 
   # -----------------------------------------------------------------
   # Storage MinIO
@@ -27,34 +31,38 @@ services:
   minio:
     image: minio/minio:latest
     container_name: lista-api-minio
+    # Comando de inicialização do MinIO para habilitar o console web
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minio_admin
       MINIO_ROOT_PASSWORD: minio_password
     ports:
-      - "9000:9000" # API
-      - "9001:9001" # Console Web
+      - "9000:9000" # Porta da API
+      - "9001:9001" # Porta do Browsers
     volumes:
       - minio_data:/data
-    healthcheck: # Garantir que a API só inicie depois que o MinIO subir, evitando falhas.
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"] # Comando para realizar o teste
-      interval: 30s # Intervalo entre as checagens
-      timeout: 20s  # Tempo máximo de espera da resposta
-      retries: 3    # Falhas consecutivas para marcar como 'unhealthy' (não saudável)
+    # Healthcheck: verifica a saúde do container
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"] # Verifica se a API do MinIO responde HTTP 200
+      interval: 30s # Roda o teste a cada 30 segundos
+      timeout: 20s  # Se demorar mais que 20s, conta como falha
+      retries: 3    # Se falhar 5 vezes seguidas, marca como 'unhealthy'
 
   # -----------------------------------------------------------------
   # API Spring Boot
   # -----------------------------------------------------------------
   api:
-    build: .             # Lê o Dockerfile na raiz
-    container_name: lista-api-app
+    build: .             # Constrói a imagem usando o Dockerfile
+    container_name: lista-api-backend
     ports:
       - "8080:8080"      # Expõe a porta 8080 para o host
+    # Orquestração de inicialização (Readiness)
     depends_on:
       postgres:
-        condition: service_healthy # Readiness: Espera o Banco estar OK 
+        condition: service_healthy # Só inicia a API quando o Postgres estiver OK
       minio:
-        condition: service_healthy # Readiness: Espera o MinIO estar OK
+        condition: service_healthy # Só inicia a API quando o MinIO estiver OK
+    # Configuração da API (sobrescrever o application.yaml)
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lista_db
       SPRING_DATASOURCE_USERNAME: seplag_user
@@ -63,13 +71,15 @@ services:
       APP_MINIO_ACCESS-KEY: minio_admin
       APP_MINIO_SECRET-KEY: minio_password
       APP_MINIO_BUCKET-NAME: capas-albuns
-    healthcheck: # Health Check e Liveness da API
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s     # Intervalo entre as checagens
-      timeout: 10s      # Tempo máximo de espera da resposta
+    # Verifica se o Spring Boot subiu e o Actuator respondeu
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]  # Comando para realizar o teste
+      interval: 30s     # Roda o teste a cada 30 segundos
+      timeout: 10s      # Se demorar mais que 10s, conta como falha
       retries: 3        # Falhas consecutivas para marcar como 'unhealthy' (não saudável)
-      start_period: 40s # Tempo para o Spring Boot carregar antes da 1ª checagem
-      
+      start_period: 40s # Tempo extra extra no início para o Java "acordar"
+
+# DVolumes gerenciados pelo Docker
 volumes:
-  postgres_data:
-  minio_data:
+  postgres_data: # Onde ficam os dados do banco
+  minio_data:    # Onde ficam as imagens (buckets)
