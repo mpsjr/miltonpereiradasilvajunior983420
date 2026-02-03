@@ -83,33 +83,21 @@ A API notifica todos os clientes conectados quando um novo álbum é cadastrado.
 - **Docker e Docker Compose** instalados.
 - **JDK 17 e Maven** instalados.
 - **Portas Livres:** Certifique-se de que não há nada rodando nas portas **8080**, **5432** e **9000**.
-> **Nota:** Em caso de dúvida, execute o seguinte comando `taskkill /F /IM java.exe`. Ele irá matar todos os processos java rodando.
+   > **Nota:** Em caso de dúvida, execute o seguinte comando `taskkill /F /IM java.exe`. Ele irá matar todos os processos java rodando e liberar a porta.
 
 
 ### Passo 1: Subir Infraestrutura (Banco e MinIO)
 - No terminal, na raiz do projeto, execute:  
    `docker-compose up -d postgres minio`  
-   > Isso iniciará o PostgreSQL (Porta 5432) e o MinIO (Porta 9000/9001), sem ocupar a porta 8080 (usada pela API).  
-   
-- Ainda no terminal, execute:  
-   `docker ps`  
-   > Esse comando lista os containers que estão rodando.  
+   > **Nota:** Isso iniciará o PostgreSQL (Porta 5432) e o MinIO (Porta 9000/9001), sem ocupar a porta 8080 (usada pela API).
+   > Caso queira listar os containers que estão rodando, execute `docker ps`
  
 ### Passo 2: Executar API
 - No terminal, na raiz do projeto, execute:  
    `mvn spring-boot:run`  
-   > Com a infraestrutura rodando, executamos a API via Maven.  
+   > **Nota:** Com a infraestrutura rodando, executamos a API via Maven.  
    > A API iniciará na porta 8080. O Flyway criará as tabelas e fará a carga inicial de dados automaticamente.  
 
-
-> ### **Comandos que podem auxiliar:**  
-> `docker-compose down`            Remove os containers criados pelo docker-compose (reiniciar o ambiente do zero).  
-> `docker-compose down -v`         Remove containers e os volumes (Apaga BD, histórico do Flyway e dados persistidos).  
-> `docker-compose up -d`           Sobe os containers definidos no docker-compose.yml (API, PostgreSQL, MinIO, etc.).  
-> `docker ps`                      Lista containers em execução (Verificar se containers estão rodando).  
-> `.\mvnw spring-boot:run`         Usa o Maven Wrapper do projeto. Compila e executa a API Spring Boot.  
-> `.\mvnw clean spring-boot:run`   Limpa classes antigas, compila e executa a API Spring Boot.  
-> `taskkill /F /IM java.exe`       Mata todos os processos java rodando (em caso de erro de porta ao subir a API).  
 
 ---
 
@@ -172,6 +160,7 @@ Acesse a interface do Swagger para testar todos os endpoints de forma interativa
    2 . Clique em "Execute" rapidamente (mais de 10 vezes em 1 minuto).
    3 . Você receberá um erro HTTP 429 com a seguinte mensagem: *Limite de requisições excedido (10 req/min). Aguarde um momento.*
 
+
 ---
 
 
@@ -199,12 +188,11 @@ Os testes concentram-se nos 3 serviços principais (maior valor e complexidade):
 ### ⚙️ Como Executar os Testes Automatizados
 - No terminal, na raiz do projeto, execute um dos comando abaixo:  
    `mvn test` ou `mvn clean test`  
-   > O Maven irá compilar o projeto e executar todos os testes automatizados, localizados em: *src/test/java/br/gov/mt/seplag/lista_api/service*  
+   > **Nota:** O Maven irá compilar o projeto e executar todos os testes automatizados, localizados em: *src/test/java/br/gov/mt/seplag/lista_api/service*  
 
 
- 📄 **Resultado Esperado:**
-   Após a execução, serão exibidos logs personalizados para facilitar o acompanhamento:
-
+ 📄 **Resultado Esperado:**  
+   Após a execução, serão exibidos logs personalizados para facilitar o acompanhamento:  
    >  Teste de Cadastro de Álbum: SUCESSO. Álbum ID 50 salvo e notificação WebSocket enviada.  
    >  Teste de Cadastro de Artista: SUCESSO.  
    >  Teste de Versionamento de Regionais: SUCESSO. Sincronização concluída. Inseridos: 0, Atualizados: 1, Inativados: 0  

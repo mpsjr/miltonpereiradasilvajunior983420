@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: seplag_password
     # Mapeamento de portas: Porta do Host (PC) : Porta do Container
     ports:
-      - "5432:5432"
+        - "5432:5432"
     # Persistência: Salva os dados num volume do Docker que não se perde ao reiniciar
     volumes:
       - postgres_data:/var/lib/postgresql/data

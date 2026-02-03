@@ -48,3 +48,9 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+# Configurações de Segurança (JWT)
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:chave-exemplo-super-secreta-seplag-2026}
