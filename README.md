@@ -83,7 +83,7 @@ A API notifica todos os clientes conectados quando um novo álbum é cadastrado.
 ## 🛠️ Como Executar o Projeto
 
 ### Pré-requisitos
-- **Docker e Docker Compose** instalados.
+- **Docker e Git** instalados.
 - **JDK 17 e Maven** instalados.
 - **Portas Livres:** Certifique-se de que não há nada rodando nas portas **8080**, **5432** e **9000**.
    > **Nota:** Em caso de dúvida, execute o seguinte comando `taskkill /F /IM java.exe`. Ele irá matar todos os processos java rodando e liberar a porta.
