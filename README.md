@@ -16,6 +16,8 @@
 ## 🚀 Tecnologias Utilizadas
 - **Java 17** (LTS)
 - **Spring Boot 3.5.10** (Web, Validation, JPA, WebSocket)
+- **Maven 3.9.12** 
+- **Git 2.53.0**
 - **PostgreSQL 15** (Banco de Dados Relacional)
 - **MinIO** (Simula um ambiente AWS S3 real). As imagens não são salvas no banco, apenas suas referências)
 - **Flyway** (Versionamento e Migração de Banco de Dados)
@@ -82,22 +84,34 @@ A API notifica todos os clientes conectados quando um novo álbum é cadastrado.
 
 ## 🛠️ Como Executar o Projeto
 
-### Pré-requisitos
-- **Docker e Git** instalados.
-- **JDK 17 e Maven** instalados.
-- **Portas Livres:** Certifique-se de que não há nada rodando nas portas **8080**, **5432** e **9000**.
-   > **Nota:** Em caso de dúvida, execute o seguinte comando `taskkill /F /IM java.exe`. Ele irá matar todos os processos java rodando e liberar a porta.
+### Pré-requisitos (Instalar e configurar)
+- **JDK 17** (https://jdk.java.net/archive/)  
+- **Docker 4.59.0** (https://www.docker.com/products/docker-desktop/)  
+- **Git 2.53.0** (https://git-scm.com/install/windows)  
+- **Maven 3.9.12** (https://dlcdn.apache.org/maven/maven-3/3.9.12/binaries/)
 
+	> **Portas Livres:** Certifique-se de que não há nada rodando nas portas **8080**, **5432** e **9000**.  
+	> Em caso de dúvida, execute o seguinte comando: `taskkill /F /IM java.exe`.  
+   > Ele irá matar todos os processos java rodando e liberar a porta.
 
-### Passo 1: Subir Infraestrutura (Banco e MinIO)
+### Passo 1: Clonar o repositório Git
+- Instalar e verifique o funcionamento dos pré-requisitos acima, antes de prosseguir.
+- No terminal do Docker, na pasta que escolheu para clonar o projeto, execute:  
+	`git clone https://github.com/mpsjr/miltonpereiradasilvajunior983420.git`
+
+	> **Nota:** O Git irá copiar o repositório Git para a sua máquina.
+
+### Passo 2: Subir Infraestrutura (Banco e MinIO)
 - No terminal, na raiz do projeto, execute:  
-   `docker-compose up -d postgres minio`  
-   > **Nota:** Isso iniciará o PostgreSQL (Porta 5432) e o MinIO (Porta 9000/9001), sem ocupar a porta 8080 (usada pela API).
+   `docker-compose up -d postgres minio`
+
+   > **Nota:** Isso iniciará o PostgreSQL (Porta 5432) e o MinIO (Porta 9000/9001), sem ocupar a porta 8080 (usada pela API).  
    > Caso queira listar os containers que estão rodando, execute `docker ps`
  
 ### Passo 2: Executar API
 - No terminal, na raiz do projeto, execute:  
-   `mvn spring-boot:run`  
+   `mvn spring-boot:run`
+
    > **Nota:** Com a infraestrutura rodando, executamos a API via Maven.  
    > A API iniciará na porta 8080. O Flyway criará as tabelas e fará a carga inicial de dados automaticamente.  
 
@@ -176,10 +190,12 @@ Para facilitar os testes, o Swagger foi configurado com suporte a Security Schem
 
 - **Listar Regionais ativas** - Permite consultar as Regionais que estão ativas.  
   `GET /v1/regionais`
+
   > **Resultado:** Ao executar a consulta antes da sincronização, irá mostrar uma lista vazia.  
 
 - **Disparar Sincronização** - Acessa a API externa e busca dados para atualizar a base de dados local.  
-  `POST /v1/regionais/sincronizacao`  
+  `POST /v1/regionais/sincronizacao`
+
 > **Resultado:** Ao finalizar a sincronização, a API informa o resultado com o número de regionais inseridas, atualizadas e inativadas.
          
 ### 🚦 Rate Limit - Controle de requisições que um usuário pode fazer.
@@ -216,7 +232,8 @@ Os testes concentram-se nos 3 serviços principais (maior valor e complexidade):
 
 ### ⚙️ Como Executar os Testes Automatizados
 - No terminal, na raiz do projeto, execute um dos comando abaixo:  
-   `mvn test` ou `mvn clean test`  
+   `mvn test` ou `mvn clean test`
+
    > **Nota:** O Maven irá compilar o projeto e executar todos os testes automatizados, localizados em: *src/test/java/br/gov/mt/seplag/lista_api/service*  
 
 
