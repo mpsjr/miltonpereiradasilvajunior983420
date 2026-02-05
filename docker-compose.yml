@@ -18,6 +18,11 @@ services:
     # Persistência: Salva os dados num volume do Docker que não se perde ao reiniciar
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seplag_user -d lista_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5                                                                           
 
   # -----------------------------------------------------------------
   # Storage MinIO
@@ -35,6 +40,11 @@ services:
       - "9001:9001" # Porta do Browsers
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3                                                                           
 
   # -----------------------------------------------------------------
   # API Spring Boot
@@ -59,6 +69,12 @@ services:
       APP_MINIO_ACCESS-KEY: minio_admin
       APP_MINIO_SECRET-KEY: minio_password
       APP_MINIO_BUCKET-NAME: capas-albuns
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: always                                                               
 
 # Volumes gerenciados pelo Docker
 volumes:
