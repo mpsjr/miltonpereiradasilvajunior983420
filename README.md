@@ -20,8 +20,8 @@
 ## 🚀 Tecnologias Utilizadas
 - **Java 17** (LTS)
 - **Spring Boot 3.5.10** (Web, Validation, JPA, WebSocket, Actuator)
-- **Maven 3.9.12** 
-- **Git 2.53.0**
+- **Maven 3.9.12** (Automatizar build)
+- **Git 2.53.0** (Controle de versão do código)
 - **PostgreSQL 15** (Banco de Dados Relacional)
 - **MinIO** (Servidor Object Storage de alto desempenho).
 - **Flyway Migrations** (Versionamento e Migração de Banco de Dados)
@@ -29,7 +29,7 @@
 - **Bucket4j** (Rate Limiting)
 - **Spring Security** (Autenticação e Autorização via Filtros)
 - **Auth0 Java-JWT** (Geração e Validação de Tokens)
-- **Swagger / OpenAPI** (Documentação e teste dos endpoinsts da API)
+- **Swagger / OpenAPI** (Documentação e teste dos endpoints da API)
 
 
 ## 📋 Funcionalidades Implementadas
@@ -64,7 +64,7 @@
 2. **Segurança e Performance**
    - Implementado filtro de **Rate Limit** (10 requisições/min) via Bucket4j, para garantir segurança e disponibilidade do serviço.
    - Criada Whitelist de prefixos que não consomem tokens do bucket para permitir acesso irrestrito à documentação e arquivos estáticos.
-   - Para evitar possiveis erros ou bloqueios durante os testes, toda a parte de autenticação e segurança foi propositalmente implementados no final do projeto.
+   - Para evitar possíveis erros ou bloqueios durante os testes, toda a parte de autenticação e segurança foi propositalmente implementada no final do projeto.
 
 3. **Health Checks:**
    - A responsabilidade de reportar a saúde da aplicação foi migrada do docker-compose para o *Spring Actuator*.
@@ -94,28 +94,22 @@ A API notifica todos os clientes conectados quando um novo álbum é cadastrado.
 - **JDK 17** (https://jdk.java.net/archive/)  
 - **Docker** (https://www.docker.com/products/docker-desktop/)  
 - **Git** (https://git-scm.com/install/windows)  
-- **Maven 3.9** (https://dlcdn.apache.org/maven/maven-3/3.9.12/binaries/)
-
+- **Maven 3.9.12** (https://dlcdn.apache.org/maven/maven-3/3.9.12/binaries/)
+   > **Nota:** Como o projeto é containerizado, não é obrigatório ter Java/Maven instalados apenas para rodar a aplicação, mas é recomendado para execução de testes unitários.
    > **Portas Livres:** Certifique-se de que não há nada rodando nas portas **8080**, **5432** e **9000**.  
 
 ### Passo 1: Clonar o repositório Git
 - No terminal do Docker, execute:  
-    `git clone https://github.com/mpsjr/miltonpereiradasilvajunior983420.git`
-
-   > **Nota:** O Git irá criar uma cópia do repositório na sua máquina.
+   ```bash
+   git clone [https://github.com/mpsjr/miltonpereiradasilvajunior983420.git](https://github.com/mpsjr/miltonpereiradasilvajunior983420.git)
+   cd miltonpereiradasilvajunior983420
+   ```  
 
 ### Passo 2: Subir Infraestrutura (Banco e MinIO)
 - No terminal, na raiz do projeto, execute:  
-   `docker-compose up -d postgres minio`
+   `docker-compose up -d --build`
 
-   > **Nota:** Isso iniciará o PostgreSQL (Porta 5432) e o MinIO (Porta 9000/9001), sem ocupar a porta 8080 (usada pela API).  
-   > Caso queira listar os containers que estão rodando, execute `docker ps`
-
-### Passo 2: Executar API
-- No terminal, na raiz do projeto, execute:  
-   `mvn spring-boot:run`
-
-   > **Nota:** Com a infraestrutura rodando, executamos a API via Maven.  
+   > **Nota:** Isso iniciará o PostgreSQL (Porta 5432), o MinIO (Porta 9000/9001) e a API (Porta 8080).  
    > A API iniciará na porta 8080. O Flyway criará as tabelas e fará a carga inicial de dados automaticamente.  
 
 
