@@ -35,7 +35,7 @@
 ## 📋 Funcionalidades Implementadas
 
    ### Requisitos Gerais
-   - [ ] **Segurança**: bloquear acesso ao endpoint a partir de domínios fora do domínio do serviço.
+   - [x] **Segurança**: Bloqueio de acesso a partir de domínios fora do domínio do serviço (Configuração de CORS).
    - [x] **Autenticação JWT**: Implementada com *Spring Security*. Token com expiração de 5 minutos e endpoint de renovação.
    - [x] **CRUD de Artistas**: Ordenação dinâmica e busca por nome.
    - [x] **CRUD de Álbuns**: Paginação, relacionamento N:N com Artistas.
