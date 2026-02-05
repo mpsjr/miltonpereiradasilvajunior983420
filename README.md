@@ -108,7 +108,7 @@ cd miltonpereiradasilvajunior983420
 ### Passo 2: Subir Infraestrutura (Banco e MinIO)
 - No terminal, na raiz do projeto, execute:  
 ```bash
-docker-compose up -d --build`
+docker-compose up -d --build
 ```  
    > **Nota:** Isso iniciará o PostgreSQL (Porta 5432), o MinIO (Porta 9000/9001) e a API (Porta 8080).  
    > O Flyway criará as tabelas e fará a carga inicial de dados automaticamente.  
