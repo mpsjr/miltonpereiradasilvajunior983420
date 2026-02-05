@@ -54,3 +54,19 @@ api:
   security:
     token:
       secret: ${JWT_SECRET:chave-exemplo-super-secreta-seplag-2026}
+      
+management:
+  endpoint:
+    health:
+      show-details: always # Mostra detalhes do erro, caso precise para debug
+      probes:
+        enabled: true      # Habilita Liveness e Readiness do Spring
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus # Expõe os endpoints na web
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
