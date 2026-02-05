@@ -54,13 +54,6 @@ services:
     container_name: lista-api-backend
     ports:
       - "8080:8080"      # Expõe a porta 8080 para o host
-    # Orquestração de inicialização (Readiness)
-    depends_on:
-      postgres:
-        condition: service_healthy # Só inicia a API quando o Postgres estiver OK
-      minio:
-        condition: service_healthy # Só inicia a API quando o MinIO estiver OK
-    # Configuração da API
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lista_db
       SPRING_DATASOURCE_USERNAME: seplag_user
@@ -69,11 +62,12 @@ services:
       APP_MINIO_ACCESS-KEY: minio_admin
       APP_MINIO_SECRET-KEY: minio_password
       APP_MINIO_BUCKET-NAME: capas-albuns
+    # Orquestração de inicialização
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_healthy # Só inicia a API quando o Postgres estiver OK
       minio:
-        condition: service_healthy
+        condition: service_healthy # Só inicia a API quando o MinIO estiver OK
     restart: always                                                               
 
 # Volumes gerenciados pelo Docker
