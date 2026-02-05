@@ -41,7 +41,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll() // Renovação
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/api-docs/**").permitAll() // Documentação (Swagger)
                         .requestMatchers("/actuator/**").permitAll() // Monitoramento (Health/Liveness) 
-                        .requestMatchers("/ws/**", "/index.html").permitAll() // WebSocket (Página e Conexão)
+                        .requestMatchers("/ws-albuns/**", "/index.html", "/favicon.ico").permitAll() // WebSocket (Página e Conexão)
                         
                         // --- Endpoints Protegidos que exigem token ---
                         .anyRequest().authenticated()

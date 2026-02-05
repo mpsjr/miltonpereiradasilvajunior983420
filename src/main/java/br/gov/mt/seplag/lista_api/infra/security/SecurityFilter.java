@@ -31,6 +31,8 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var token = this.recoverToken(request);
         
+        // Se tiver token, valida. Se não tiver, segue.
+        // O SecurityConfigurations é que vai decidir se barra ou não.       
         if(token != null) {
             var login = tokenService.validateToken(token);
             

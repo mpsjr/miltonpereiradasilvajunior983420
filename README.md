@@ -100,10 +100,10 @@ A API notifica todos os clientes conectados quando um novo álbum é cadastrado.
 
 ### Passo 1: Clonar o repositório Git
 - No terminal do Docker, execute:  
-   ```bash
-   git clone [https://github.com/mpsjr/miltonpereiradasilvajunior983420.git](https://github.com/mpsjr/miltonpereiradasilvajunior983420.git)
-   cd miltonpereiradasilvajunior983420
-   ```  
+```bash
+git clone https://github.com/mpsjr/miltonpereiradasilvajunior983420.git
+cd miltonpereiradasilvajunior983420
+```  
 
 ### Passo 2: Subir Infraestrutura (Banco e MinIO)
 - No terminal, na raiz do projeto, execute:  
@@ -121,7 +121,7 @@ A aplicação expõe endpoints de diagnóstico padronizados para orquestradores:
 
 | **Geral** (`http://localhost:8080/actuator/health`) : Status Geral. Resumo agregado de todos os componentes.  
 | **Liveness** (`http://localhost:8080/actuator/health/liveness`) : Monitora se o processo Java está rodando e não travou.  
-| **Readiness** (`http://localhost:8080/actuator/health/readiness`) : Monitora se a API consegue se conectar com com *PostgreSQL* e *MinIO*.  
+| **Readiness** (`http://localhost:8080/actuator/health/readiness`) : Monitora se a API consegue se conectar com *PostgreSQL* e *MinIO*.  
 
 
 ---
