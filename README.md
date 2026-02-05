@@ -95,7 +95,7 @@ A API notifica todos os clientes conectados quando um novo álbum é cadastrado.
 - **Docker** (https://www.docker.com/products/docker-desktop/)  
 - **Git** (https://git-scm.com/install/windows)  
 - **Maven 3.9.12** (https://dlcdn.apache.org/maven/maven-3/3.9.12/binaries/)
-   > **Nota:** Como o projeto é containerizado, não é obrigatório ter Java/Maven instalados apenas para rodar a aplicação, mas é recomendado para execução de testes unitários.
+   > **Nota:** Como o projeto é containerizado, não é obrigatório ter Java/Maven instalados apenas para rodar a aplicação, mas é recomendado para execução de testes unitários.  
    > **Portas Livres:** Certifique-se de que não há nada rodando nas portas **8080**, **5432** e **9000**.  
 
 ### Passo 1: Clonar o repositório Git
@@ -107,8 +107,9 @@ cd miltonpereiradasilvajunior983420
 
 ### Passo 2: Subir Infraestrutura (Banco e MinIO)
 - No terminal, na raiz do projeto, execute:  
-   `docker-compose up -d --build`
-
+```bash
+docker-compose up -d --build`
+```  
    > **Nota:** Isso iniciará o PostgreSQL (Porta 5432), o MinIO (Porta 9000/9001) e a API (Porta 8080).  
    > A API iniciará na porta 8080. O Flyway criará as tabelas e fará a carga inicial de dados automaticamente.  
 
@@ -119,9 +120,9 @@ cd miltonpereiradasilvajunior983420
 ## 🩺 Monitoramento (Health Checks)
 A aplicação expõe endpoints de diagnóstico padronizados para orquestradores:
 
-| **Geral** (`http://localhost:8080/actuator/health`) : Status Geral. Resumo agregado de todos os componentes.  
-| **Liveness** (`http://localhost:8080/actuator/health/liveness`) : Monitora se o processo Java está rodando e não travou.  
-| **Readiness** (`http://localhost:8080/actuator/health/readiness`) : Monitora se a API consegue se conectar com *PostgreSQL* e *MinIO*.  
+| **Geral** [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) : Status Geral. Resumo agregado de todos os componentes.  
+| **Liveness** [http://localhost:8080/actuator/health/liveness](http://localhost:8080/actuator/health/liveness) : Monitora se o processo Java está rodando e não travou.  
+| **Readiness** [http://localhost:8080/actuator/health/readiness](http://localhost:8080/actuator/health/readiness) : Monitora se a API consegue se conectar com *PostgreSQL* e *MinIO*.  
 
 
 ---
