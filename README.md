@@ -127,6 +127,26 @@ A aplicação expõe endpoints de diagnóstico padronizados para orquestradores:
 
 ---
 
+## 🗄️ Acesso ao MinIO (Object Storage)
+O projeto utiliza o **MinIO** para simular um serviço de S3 (como AWS) localmente. Todas as imagens de capas de álbuns enviadas pela API são armazenadas aqui.
+
+Você pode acessar o console administrativo para visualizar os arquivos fisicamente:
+
+| Serviço | Endereço / Credencial |
+| :--- | :--- |
+| **Console Web** | [http://localhost:9001](http://localhost:9001) |
+| **Usuário** | `minio_admin` |
+| **Senha** | `minio_password` |
+| **Bucket Padrão** | `capas-albuns` |
+
+> **Como testar:**
+> 1. Faça o upload de uma imagem via Swagger (`POST /v1/albuns/{id}/capa`).
+> 2. Acesse o link acima e faça login.
+> 3. Navegue até o bucket **capas-albuns** para ver o arquivo salvo.
+
+
+---
+
 
 ## 📚 Documentação e testes da API (Swagger)
 Acesse a interface do Swagger para testar todos os endpoints de forma interativa:  
